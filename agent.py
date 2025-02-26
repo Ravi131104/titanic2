@@ -1,19 +1,16 @@
-from transformers import pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+import requests
 import streamlit as st
 
-# ✅ Load Hugging Face API Key
+# ✅ Hugging Face API Key
 huggingface_api_key = st.secrets["HUGGINGFACE_API_KEY"]
 
-# ✅ Use a lighter model (Falcon-7B is faster than Mistral)
-hf_pipeline = pipeline(
-    "text-generation",
-    model="tiiuae/falcon-7b-instruct",
-    token=huggingface_api_key
-)
+# ✅ Use Hugging Face's hosted API instead of loading Mistral locally
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-v0.1"
+headers = {"Authorization": f"Bearer {huggingface_api_key}"}
 
 def ask_agent(query: str):
-    try:
-        response = hf_pipeline(query, max_length=200, do_sample=True)
-        return response[0]["generated_text"]
-    except Exception as e:
-        return f"❌ Error: {str(e)}"
+    payload = {"inputs": query}
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()[0]["generated_text"]
