@@ -1,17 +1,16 @@
 from transformers import pipeline
 import streamlit as st
 
-# ✅ Load Hugging Face API Key securely
+# ✅ Load Hugging Face API Key
 huggingface_api_key = st.secrets["HUGGINGFACE_API_KEY"]
 
-# ✅ Load Mistral 7B Model
+# ✅ Use a lighter model (Falcon-7B is faster than Mistral)
 hf_pipeline = pipeline(
     "text-generation",
-    model="mistralai/Mistral-7B-v0.1",  # ✅ Public model
+    model="tiiuae/falcon-7b-instruct",
     token=huggingface_api_key
 )
 
-# ✅ Function to Query Mistral 7B
 def ask_agent(query: str):
     try:
         response = hf_pipeline(query, max_length=200, do_sample=True)
